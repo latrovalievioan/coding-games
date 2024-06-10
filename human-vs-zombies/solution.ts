@@ -20,33 +20,19 @@ const ZOMBIE_SPEED = 400;
 const ME_SPEED = 1000;
 const BULLET_DISTANCE = 2000;
 
-const getHumans = () => {
-  const humans: Entity[] = [];
-  const humanCount = parseInt(readline());
-  for (let i = 0; i < humanCount; i++) {
+const getEntities = () => {
+  const entities: Entity[] = [];
+  const entityCount = parseInt(readline());
+  for (let i = 0; i < entityCount; i++) {
     const inputs = readline().split(" ");
-    humans.push({
+    entities.push({
       id: parseInt(inputs[0]),
       x: parseInt(inputs[1]),
       y: parseInt(inputs[2]),
     });
   }
 
-  return humans;
-};
-
-const getZombies = () => {
-  const zombies: Entity[] = [];
-  const zombieCount = parseInt(readline());
-  for (let i = 0; i < zombieCount; i++) {
-    const inputs = readline().split(" ");
-    zombies.push({
-      id: parseInt(inputs[0]),
-      x: parseInt(inputs[1]),
-      y: parseInt(inputs[2]),
-    });
-  }
-  return zombies;
+  return entities;
 };
 
 const getHumansWithNearestZombies = (
@@ -123,7 +109,7 @@ const filterUnsavableHumans = (
       humanWithNearestZombie.zombieToHumanDistance / ZOMBIE_SPEED;
     const meToHumanTime = (humanWithNearestZombie.meToHumanDistance - BULLET_DISTANCE) / ME_SPEED;
 
-    return zombieToHumanTime > meToHumanTime;
+    return zombieToHumanTime >= meToHumanTime;
   });
 };
 
@@ -136,9 +122,9 @@ while (true) {
     y: parseInt(inputs[1]),
   };
 
-  const humans = getHumans();
+  const humans = getEntities();
 
-  const zombies = getZombies();
+  const zombies = getEntities();
 
   const humansWithNearestZombies = getHumansWithNearestZombies(
     me,
