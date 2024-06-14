@@ -24,13 +24,20 @@ type HumanWithNearestZombie = {
 const ZOMBIE_SPEED = 400;
 const ASH_SPEED = 1000;
 const BULLET_DISTANCE = 2000;
-const MAX_X = 16_000
-const MAX_Y = 9_000
-const MID_X = MAX_X / 2
-const MID_Y = MAX_Y / 2
+const MAX_X = 16_000;
+const MAX_Y = 9_000;
+const MID_X = 16_000 / 2;
+const MID_Y = 9_000 / 2;
 
 const calcVecDist = (a: Vector, b: Vector) => {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+};
+
+const findCentroid = (vectors: Vector[]) => {
+  const x = vectors.reduce((acc, curr) => acc + curr.x, 0) / vectors.length;
+  const y = vectors.reduce((acc, curr) => acc + curr.y, 0) / vectors.length;
+
+  return { x, y } as Vector;
 };
 
 const parseInputEntities = () => {
@@ -87,11 +94,19 @@ const mapHumansWithNearestZombie = (
   return humansWithNearestZombies;
 };
 
-const calcDir = (humansWithNearestZombies: HumanWithNearestZombie[]) => {
-  const leftHumans = humansWithNearestZombies.filter(h => h.human.x > MID_X)
-  const rightHumans = humansWithNearestZombies.filter(h => h.human.x <= MID_X)
+const calcDir = (
+  humansWithNearestZombies: HumanWithNearestZombie[],
+  zombies: Entity[],
+) => {
+  const withoutUnsavableHumans = filterUnsavableHumans(
+    humansWithNearestZombies,
+  );
 
-  const roughDirection = leftHumans.length > rightHumans.length ? leftHumans : rightHumans
+  const leftHumans = withoutUnsavableHumans.filter((h) => h.human.x > MID_X);
+  const rightHumans = withoutUnsavableHumans.filter((h) => h.human.x <= MID_X);
+
+  const roughDirection =
+    leftHumans.length > rightHumans.length ? leftHumans : rightHumans;
 
   const humanWithNearestZombie = roughDirection.reduce(
     (acc, curr) =>
@@ -105,8 +120,10 @@ const calcDir = (humansWithNearestZombies: HumanWithNearestZombie[]) => {
     } as HumanWithNearestZombie,
   );
 
-  return `${humanWithNearestZombie.zombie.x} ${humanWithNearestZombie.zombie.y}`;
-};
+  const centroid = findCentroid([...zombies, ...roughDirection.map(x => x.human)]);
+
+  return `${Math.floor(centroid.x)} ${Math.floor(centroid.y)}`;
+}
 
 const filterUnsavableHumans = (
   humansWithNearestZombies: HumanWithNearestZombie[],
@@ -140,5 +157,5 @@ while (true) {
     zombies,
   );
 
-  console.log(`${calcDir(filterUnsavableHumans(humansWithNearestZombies))} LEEROY JENKINS!`);
+  console.log(`${calcDir(humansWithNearestZombies, zombies)} LEEROY JENKINS!`);
 }
