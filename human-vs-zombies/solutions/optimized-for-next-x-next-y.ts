@@ -24,6 +24,10 @@ type HumanWithNearestZombie = {
 const ZOMBIE_SPEED = 400;
 const ASH_SPEED = 1000;
 const BULLET_DISTANCE = 2000;
+const MAX_X = 16_000;
+const MAX_Y = 9_000;
+const MID_X = MAX_X / 2;
+const MID_Y = MAX_Y / 2;
 
 const calcVecDist = (a: Vector, b: Vector) => {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
@@ -84,7 +88,20 @@ const mapHumansWithNearestZombie = (
 };
 
 const calcDir = (humansWithNearestZombies: HumanWithNearestZombie[]) => {
-  const humanWithNearestZombie = humansWithNearestZombies.reduce(
+  const leftHumans = humansWithNearestZombies.filter((h) => h.human.x > MID_X);
+  const rightHumans = humansWithNearestZombies.filter(
+    (h) => h.human.x <= MID_X,
+  );
+  const xDir =
+    leftHumans.length > rightHumans.length ? leftHumans : rightHumans;
+
+  const xDirUpHumans = xDir.filter((h) => h.human.y > MID_Y);
+  const xDirDownHumans = xDir.filter((h) => h.human.y <= MID_Y);
+
+  const xyDir =
+    xDirUpHumans.length > xDirDownHumans.length ? xDirUpHumans : xDirDownHumans;
+
+  const humanWithNearestZombie = xDir.reduce(
     (acc, curr) =>
       curr.zombieToHumanDistance < acc.zombieToHumanDistance ? curr : acc,
     {
@@ -131,5 +148,7 @@ while (true) {
     zombies,
   );
 
-  console.log(`${calcDir(filterUnsavableHumans(humansWithNearestZombies))} LEEROY JENKINS!`);
+  console.log(
+    `${calcDir(filterUnsavableHumans(humansWithNearestZombies))} go6oooo`,
+  );
 }
