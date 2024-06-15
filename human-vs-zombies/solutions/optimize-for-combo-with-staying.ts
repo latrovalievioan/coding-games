@@ -92,7 +92,12 @@ const mapHumansWithNearestZombie = (
   return humansWithNearestZombies;
 };
 
-const calcDir = (humansWithNearestZombies: HumanWithNearestZombie[]) => {
+const calcDir = (humansWithNearestZombies: HumanWithNearestZombie[], ash: Entity) => {
+  console.error(humansWithNearestZombies)
+  if(humansWithNearestZombies.filter(h => h.zombieToHumanDistance < h.ashToZombieDistance).length === 0) {
+     return `${ash.x} ${ash.y}`
+  }
+
   const leftHumans = humansWithNearestZombies.filter((h) => h.human.x > MID_X);
   const rightHumans = humansWithNearestZombies.filter(
     (h) => h.human.x <= MID_X,
@@ -142,7 +147,6 @@ while (true) {
 
   const zombies = parseInputEntities()
 
-
   const humansWithNearestZombies = mapHumansWithNearestZombie(
     ash,
     humans,
@@ -150,6 +154,6 @@ while (true) {
   );
 
   console.log(
-    `${calcDir(filterUnsavableHumans(humansWithNearestZombies))} LEEROY JENKINS!`,
+    `${calcDir(filterUnsavableHumans(humansWithNearestZombies), ash)} LEEROY JENKINS!`,
   );
 }
