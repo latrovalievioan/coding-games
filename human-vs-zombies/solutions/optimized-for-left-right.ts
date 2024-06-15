@@ -24,14 +24,19 @@ type HumanWithNearestZombie = {
 const ZOMBIE_SPEED = 400;
 const ASH_SPEED = 1000;
 const BULLET_DISTANCE = 2000;
-const MAX_X = 16_000
-const MAX_Y = 9_000
-const MID_X = MAX_X / 2
-const MID_Y = MAX_Y / 2
+const MAX_X = 16_000;
+const MAX_Y = 9_000;
+const MID_X = MAX_X / 2;
+const MID_Y = MAX_Y / 2;
 
 const calcVecDist = (a: Vector, b: Vector) => {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 };
+
+const calcMidPoint = (a: Vector, b: Vector) => ({
+  x: (a.x + b.x) / 2,
+  y: (a.y + b.y) / 2,
+});
 
 const parseInputEntities = () => {
   const entities: Entity[] = [];
@@ -88,10 +93,13 @@ const mapHumansWithNearestZombie = (
 };
 
 const calcDir = (humansWithNearestZombies: HumanWithNearestZombie[]) => {
-  const leftHumans = humansWithNearestZombies.filter(h => h.human.x > MID_X)
-  const rightHumans = humansWithNearestZombies.filter(h => h.human.x <= MID_X)
+  const leftHumans = humansWithNearestZombies.filter((h) => h.human.x > MID_X);
+  const rightHumans = humansWithNearestZombies.filter(
+    (h) => h.human.x <= MID_X,
+  );
 
-  const roughDirection = leftHumans.length > rightHumans.length ? leftHumans : rightHumans
+  const roughDirection =
+    leftHumans.length > rightHumans.length ? leftHumans : rightHumans;
 
   const humanWithNearestZombie = roughDirection.reduce(
     (acc, curr) =>
@@ -132,7 +140,6 @@ while (true) {
 
   const humans = parseInputEntities();
 
-  const zombies = parseInputEntities();
 
   const humansWithNearestZombies = mapHumansWithNearestZombie(
     ash,
@@ -140,5 +147,7 @@ while (true) {
     zombies,
   );
 
-  console.log(`${calcDir(filterUnsavableHumans(humansWithNearestZombies))} LEEROY JENKINS!`);
+  console.log(
+    `${calcDir(filterUnsavableHumans(humansWithNearestZombies))} LEEROY JENKINS!`,
+  );
 }

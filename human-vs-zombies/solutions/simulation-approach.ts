@@ -20,14 +20,18 @@ const MAX_X = 16_000;
 const MAX_Y = 9_000;
 
 const fibToN = (n: number) => {
-  if (n <= 0) {
-    return 0;
-  } else if (n === 1) {
-    return 1;
-  } else {
-    return fibToN(n - 1) + fibToN(n - 2);
+  if (n === 0) return 0
+  if (n === 1) return 1
+
+  let f0 = 0;
+  let f1 = 1;
+
+  for (let i = 2; i <= n; ++i) {
+    [f0, f1] = [f1, f0 + f1]
   }
-};
+
+  return f1
+}
 
 const calcZombieScore = (humans: Entity[]) => humans.length ** 2 * 10;
 
@@ -35,9 +39,9 @@ const calcFrameKillScore = (killedZombies: Entity[], humans: Entity[]) => {
   if (killedZombies.length > 1) {
     let points = 0;
 
-    killedZombies.forEach((_, i) => {
+    for(let i = 0; i < killedZombies.length; i++) {
       points += calcZombieScore(humans) * fibToN(i + 1 + 2);
-    });
+    }
 
     return points;
   }
@@ -164,7 +168,10 @@ const eatHumans = (zombies: Entity[], humans: Entity[]) =>
     return [...acc, human];
   }, [] as Entity[]);
 
-const scoresWithSteps: { score: number; steps: Vector[] }[] = [];
+const bestScoreWithSteps: { score: number; steps: Vector[] } = {
+  score: 0,
+  steps: [],
+};
 
 const runSimulation = (
   humans: Entity[],
@@ -174,11 +181,13 @@ const runSimulation = (
   targetZombie: Entity,
   steps: Vector[],
 ) => {
-  if (!humans.length) {
+  if ((bestScoreWithSteps.score <= score && !zombies.length)) {
+    bestScoreWithSteps.score = score;
+    bestScoreWithSteps.steps = steps;
     return;
   }
-  if (!zombies.length) {
-    scoresWithSteps.push({ score, steps });
+
+  if (!humans.length || !zombies.length) {
     return;
   }
 
@@ -194,7 +203,7 @@ const runSimulation = (
 
   const aliveHumans = eatHumans(aliveZombies, humans);
 
-  if (aliveZombies.length) {
+  if (aliveZombies.length > 0) {
     for (let i = 0; i < aliveZombies.length; i++) {
       const zombie = aliveZombies[i];
       runSimulation(
@@ -229,7 +238,6 @@ while (true) {
   };
 
   const humans = parseInputEntities();
-
   const zombies = parseInputEntities();
 
   if (i === 0) {
@@ -239,13 +247,15 @@ while (true) {
     }
   }
 
-  const sortedScoresWithSteps = [...scoresWithSteps].sort((a, b) => b.score - a.score)
+  const lastStepsIndex = bestScoreWithSteps.steps.length - 1;
 
-  console.error(JSON.stringify(sortedScoresWithSteps))
+  const indexWith = i <= lastStepsIndex ? i : lastStepsIndex;
 
-  const bestScore = sortedScoresWithSteps[0]
+  console.error({lastStepsIndex, indexWith})
 
-  console.log(`${Math.floor(bestScore.steps[i].x)} ${Math.floor(bestScore.steps[i].y)}`);
+  console.log(
+    `${Math.floor(bestScoreWithSteps.steps[indexWith].x)} ${Math.floor(bestScoreWithSteps.steps[indexWith].y)}`,
+  );
 
   i++;
 }
